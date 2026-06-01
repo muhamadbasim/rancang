@@ -33,10 +33,10 @@ Built-in domains: **CRM, booking, inventory, helpdesk, marketplace**, plus a gen
 
 ## Tech stack
 
-- **Next.js 15** (App Router) + **React 19** + **TypeScript**
+- **Next.js 15** (App Router, **static export**) + **React 19** + **TypeScript**
 - **Tailwind CSS** for styling
-- Offline-first **heuristic generation engine** (no API key, fully deterministic)
-- Optional LLM enrichment hook (see `.env.example`)
+- Offline-first **heuristic generation engine** that runs **entirely in the browser** (no API key, no server, fully deterministic)
+- Deployed as a static site on **Cloudflare Pages**
 
 The matching target stack for *generated* apps is Next.js / PostgreSQL / Drizzle / Tailwind / shadcn — reflected in the build prompt.
 
@@ -57,11 +57,14 @@ npm run dev
 Other scripts:
 
 ```bash
-npm run build      # production build
+npm run build      # static export to ./out
 npm run start      # serve production build
 npm run typecheck  # tsc --noEmit
 npm run lint       # next lint
+npm run deploy     # build + deploy to Cloudflare Pages (needs CLOUDFLARE_* env)
 ```
+
+Live at **https://rancang.basim.id**.
 
 ---
 
@@ -70,7 +73,6 @@ npm run lint       # next lint
 ```
 src/
 ├── app/
-│   ├── api/blueprint/route.ts   # POST { idea, lang } -> { blueprint }
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx                 # landing + result orchestration
@@ -95,7 +97,7 @@ src/
 3. `computeReadiness()` scores clarity, domain fit, roles, monetization, and integrations, and lists gaps.
 4. `renderBuildPrompt()` assembles everything into a paste-ready prompt.
 
-Everything runs server-side in the API route with no external calls, so it works without internet or keys.
+Everything runs in the browser with no external calls, so it works offline and nothing about your idea leaves your machine.
 
 ---
 

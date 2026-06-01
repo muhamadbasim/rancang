@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Blueprint, Lang } from "@/lib/blueprint/types";
 import type { Dict } from "@/lib/i18n";
+import { generateBlueprint } from "@/lib/blueprint";
 
 interface Props {
   dict: Dict;
@@ -22,20 +23,19 @@ export function Hero({ dict, lang, onResult }: Props) {
       setError(lang === "id" ? "Tulis ide setidaknya satu kalimat singkat." : "Describe your idea in at least a short sentence.");
       return;
     }
+    if (value.length > 1200) {
+      setError(lang === "id" ? "Ide terlalu panjang. Maksimal 1200 karakter." : "Idea is too long. Keep it under 1200 characters.");
+      return;
+    }
     setError(null);
     setLoading(true);
+    // The engine is pure and deterministic, so it runs entirely in the browser.
+    // A short delay keeps the "cooking" affordance from the reference UX.
     try {
-      const res = await fetch("/api/blueprint", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: value, lang }),
+      const blueprint = await new Promise<Blueprint>((resolve) => {
+        setTimeout(() => resolve(generateBlueprint(value, lang)), 450);
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? dict.common.error);
-      } else {
-        onResult(data.blueprint as Blueprint);
-      }
+      onResult(blueprint);
     } catch {
       setError(dict.common.error);
     } finally {

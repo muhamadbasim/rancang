@@ -1,0 +1,6 @@
+name = "rancang"
+compatibility_date = "2025-06-01"
+pages_build_output_dir = "./out"
+
+[vars]
+SITE_URL = "https://rancang.basim.id"
